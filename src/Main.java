@@ -1,6 +1,7 @@
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -8,6 +9,7 @@ public class Main {
     private static final Scanner scanner = new Scanner(System.in);
     private static final ExpenseManager manager = new ExpenseManager(new FileStorage("expenses.csv"));
     private static final SummaryGenerator summaryGenerator = new SummaryGenerator();
+    private static final BudgetManager budgetManager = new BudgetManager("budgets.csv");
 
     public static void main(String[] args) {
         boolean running = true;
@@ -21,7 +23,9 @@ public class Main {
                 case "4" -> categoryReport();
                 case "5" -> editExpense();
                 case "6" -> deleteExpense();
-                case "7" -> running = false;
+                case "7" -> setBudget();
+                case "8" -> viewBudgets();
+                case "9" -> running = false;
                 default -> System.out.println("Invalid option, please try again.");
             }
         }
@@ -36,7 +40,9 @@ public class Main {
         System.out.println("4. Category Report");
         System.out.println("5. Edit Expense");
         System.out.println("6. Delete Expense");
-        System.out.println("7. Exit");
+        System.out.println("7. Set Category Budget");
+        System.out.println("8. View Budgets");
+        System.out.println("9. Exit");
         System.out.print("Choose an option: ");
     }
 
@@ -69,7 +75,8 @@ public class Main {
     private static void monthlySummary() {
         int[] my = promptMonthYear();
         List<Expense> monthExpenses = manager.getForMonth(my[0], my[1]);
-        summaryGenerator.printMonthlySummary(monthExpenses, my[0], my[1]);
+        Map<String, Double> budgets = budgetManager.getAllBudgets();
+        summaryGenerator.printMonthlySummary(monthExpenses, my[0], my[1], budgets);
     }
 
     private static void categoryReport() {
@@ -104,6 +111,30 @@ public class Main {
         int id = promptInt("Enter the ID of the expense to delete: ");
         boolean removed = manager.deleteExpense(id);
         System.out.println(removed ? "Expense deleted." : "No expense found with ID " + id);
+    }
+
+    private static void setBudget() {
+        System.out.print("Enter category to set a budget for: ");
+        String category = scanner.nextLine().trim();
+        if (category.isBlank()) {
+            System.out.println("Category cannot be blank.");
+            return;
+        }
+        double limit = promptAmount("Enter monthly budget limit for " + category + ": ");
+        budgetManager.setBudget(category, limit);
+        System.out.printf("Budget set: %s -> $%.2f per month%n", category, limit);
+    }
+
+    private static void viewBudgets() {
+        Map<String, Double> budgets = budgetManager.getAllBudgets();
+        if (budgets.isEmpty()) {
+            System.out.println("\nNo budgets set yet.");
+            return;
+        }
+        System.out.println("\n--- Category Budgets (Monthly) ---");
+        for (Map.Entry<String, Double> entry : budgets.entrySet()) {
+            System.out.printf("  %-14s $%.2f%n", entry.getKey() + ":", entry.getValue());
+        }
     }
 
     // ---- input helpers ----
