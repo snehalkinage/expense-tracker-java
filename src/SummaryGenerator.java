@@ -79,5 +79,24 @@ public class SummaryGenerator {
             System.out.printf("  %-14s $%-10.2f (%.1f%%)%n", entry.getKey() + ":", entry.getValue(), pct);
         }
         System.out.printf("%nGrand Total: $%.2f%n", total);
+
+        printBarChart(byCategory);
+    }
+
+    /**
+     * Renders a simple ASCII bar chart, scaling each category's bar relative to the highest spender.
+     */
+    private void printBarChart(Map<String, Double> byCategory) {
+        if (byCategory.isEmpty()) return;
+
+        final int maxBarWidth = 20;
+        double maxAmount = Collections.max(byCategory.values());
+
+        System.out.println("\n--- Spending Chart ---");
+        for (Map.Entry<String, Double> entry : byCategory.entrySet()) {
+            int filled = maxAmount == 0 ? 0 : (int) Math.round((entry.getValue() / maxAmount) * maxBarWidth);
+            String bar = "\u2588".repeat(filled) + "\u2591".repeat(maxBarWidth - filled);
+            System.out.printf("  %-14s %s  $%.2f%n", entry.getKey() + ":", bar, entry.getValue());
+        }
     }
 }

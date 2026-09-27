@@ -7,7 +7,9 @@ import java.util.Scanner;
 
 public class Main {
     private static final Scanner scanner = new Scanner(System.in);
-    private static final ExpenseManager manager = new ExpenseManager(new FileStorage("expenses.csv"));
+    // Swap between storage backends by commenting/uncommenting one of these two lines:
+    private static final ExpenseManager manager = new ExpenseManager(new SQLiteStorage("expenses.db"));
+    // private static final ExpenseManager manager = new ExpenseManager(new FileStorage("expenses.csv"));
     private static final SummaryGenerator summaryGenerator = new SummaryGenerator();
     private static final BudgetManager budgetManager = new BudgetManager("budgets.csv");
 
@@ -45,7 +47,6 @@ public class Main {
         System.out.println("9. Exit");
         System.out.print("Choose an option: ");
     }
-
     private static void addExpense() {
         LocalDate date = promptDate("Enter date (YYYY-MM-DD, blank for today): ", true);
         double amount = promptAmount("Enter amount: ");
@@ -82,7 +83,6 @@ public class Main {
     private static void categoryReport() {
         summaryGenerator.printCategoryReport(manager.getAll());
     }
-
     private static void editExpense() {
         int id = promptInt("Enter the ID of the expense to edit: ");
         Optional<Expense> existing = manager.findById(id);
@@ -124,7 +124,6 @@ public class Main {
         budgetManager.setBudget(category, limit);
         System.out.printf("Budget set: %s -> $%.2f per month%n", category, limit);
     }
-
     private static void viewBudgets() {
         Map<String, Double> budgets = budgetManager.getAllBudgets();
         if (budgets.isEmpty()) {
@@ -170,7 +169,6 @@ public class Main {
             }
         }
     }
-
     private static int promptInt(String prompt) {
         while (true) {
             System.out.print(prompt);

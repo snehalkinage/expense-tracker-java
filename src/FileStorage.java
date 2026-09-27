@@ -5,7 +5,7 @@ import java.util.*;
 /**
  * Handles loading and saving expenses to a CSV file on disk.
  */
-public class FileStorage {
+public class FileStorage implements ExpenseStorage {
     private final Path filePath;
 
     public FileStorage(String fileName) {

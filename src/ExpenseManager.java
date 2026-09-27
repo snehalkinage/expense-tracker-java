@@ -1,11 +1,16 @@
 import java.time.LocalDate;
 import java.util.*;
+
+/**
+ * Manages the in-memory collection of expenses: add, edit, delete, list.
+ * Delegates persistence to any ExpenseStorage implementation (CSV file or SQLite database).
+ */
 public class ExpenseManager {
     private final List<Expense> expenses;
-    private final FileStorage storage;
+    private final ExpenseStorage storage;
     private int nextId;
 
-    public ExpenseManager(FileStorage storage) {
+    public ExpenseManager(ExpenseStorage storage) {
         this.storage = storage;
         this.expenses = storage.load();
         this.nextId = expenses.stream().mapToInt(Expense::getId).max().orElse(0) + 1;
